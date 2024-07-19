@@ -245,6 +245,7 @@ class IntlPhoneField extends StatefulWidget {
 
   // TODO(muzakim): 24.07.19
   final double pickerBottomSheetBorderRadius;
+  final double pickerBottomSheetBorderWidth;
   final Color pickerBottomSheetBorderColor;
 
   /// The margin of the country selector button.
@@ -308,6 +309,7 @@ class IntlPhoneField extends StatefulWidget {
     this.cursorWidth = 2.0,
     this.showCursor = true,
     this.pickerBottomSheetBorderRadius = 40,
+    this.pickerBottomSheetBorderWidth = 1,
     this.pickerBottomSheetBorderColor = Colors.white24,
     this.pickerBottomSheetStyle,
     this.flagsButtonMargin = EdgeInsets.zero,
@@ -390,6 +392,7 @@ class _IntlPhoneFieldState extends State<IntlPhoneField> {
       useRootNavigator: false,
       builder: (context) => CountryPickerBottomSheet(
         borderRadius: widget.pickerBottomSheetBorderRadius,
+        borderWidth: widget.pickerBottomSheetBorderWidth,
         borderColor: widget.pickerBottomSheetBorderColor,
         languageCode: widget.languageCode.toLowerCase(),
         style: widget.pickerBottomSheetStyle,

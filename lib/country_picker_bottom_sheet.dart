@@ -52,6 +52,7 @@ class PickerBottomSheetStyle {
 
 class CountryPickerBottomSheet extends StatefulWidget {
   final double borderRadius;
+  final double borderWidth;
   final Color borderColor;
   final List<Country> countryList;
   final Country selectedCountry;
@@ -64,7 +65,8 @@ class CountryPickerBottomSheet extends StatefulWidget {
   const CountryPickerBottomSheet({
     Key? key,
     required this.borderRadius,
-    this.borderColor = Colors.white24,
+    required this.borderWidth,
+    required this.borderColor,
     required this.searchText,
     required this.languageCode,
     required this.countryList,
@@ -106,7 +108,9 @@ class _CountryPickerBottomSheetState extends State<CountryPickerBottomSheet> {
           topLeft: Radius.circular(widget.borderRadius),
           topRight: Radius.circular(widget.borderRadius),
         ),
-        border: Border(top: BorderSide(color: widget.borderColor, width: 1.5)),
+        border: Border(
+            top: BorderSide(
+                color: widget.borderColor, width: widget.borderWidth)),
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.only(
