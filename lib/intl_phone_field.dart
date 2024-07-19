@@ -4,7 +4,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:intl_phone_field/country_picker_dialog.dart';
+import 'package:intl_phone_field/country_picker_bottom_sheet.dart';
 import 'package:intl_phone_field/helpers.dart';
 
 import './countries.dart';
@@ -238,9 +238,12 @@ class IntlPhoneField extends StatefulWidget {
   /// The type of action button to use for the keyboard.
   final TextInputAction? textInputAction;
 
+  // TODO(muzakim): 24.07.19
+  final double bottomSheetBorderRadius;
+
   /// Optional set of styles to allow for customizing the country search
   /// & pick dialog
-  final PickerDialogStyle? pickerDialogStyle;
+  final PickerBottomSheetStyle? pickerDialogStyle;
 
   /// The margin of the country selector button.
   ///
@@ -302,6 +305,7 @@ class IntlPhoneField extends StatefulWidget {
     this.cursorRadius = Radius.zero,
     this.cursorWidth = 2.0,
     this.showCursor = true,
+    this.bottomSheetBorderRadius = 40,
     this.pickerDialogStyle,
     this.flagsButtonMargin = EdgeInsets.zero,
     this.magnifierConfiguration,
@@ -371,23 +375,27 @@ class _IntlPhoneFieldState extends State<IntlPhoneField> {
 
   Future<void> _changeCountry() async {
     filteredCountries = _countryList;
-    await showDialog(
+    await showModalBottomSheet(
       context: context,
-      useRootNavigator: false,
-      builder: (context) => StatefulBuilder(
-        builder: (ctx, setState) => CountryPickerDialog(
-          languageCode: widget.languageCode.toLowerCase(),
-          style: widget.pickerDialogStyle,
-          filteredCountries: filteredCountries,
-          searchText: widget.searchText,
-          countryList: _countryList,
-          selectedCountry: _selectedCountry,
-          onCountryChanged: (Country country) {
-            _selectedCountry = country;
-            widget.onCountryChanged?.call(country);
-            setState(() {});
-          },
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(widget.bottomSheetBorderRadius),
+          topRight: Radius.circular(widget.bottomSheetBorderRadius),
         ),
+      ),
+      useRootNavigator: false,
+      builder: (context) => CountryPickerBottomSheet(
+        languageCode: widget.languageCode.toLowerCase(),
+        style: widget.pickerDialogStyle,
+        filteredCountries: filteredCountries,
+        searchText: widget.searchText,
+        countryList: _countryList,
+        selectedCountry: _selectedCountry,
+        onCountryChanged: (Country country) {
+          _selectedCountry = country;
+          widget.onCountryChanged?.call(country);
+          setState(() {});
+        },
       ),
     );
     if (mounted) setState(() {});
@@ -395,73 +403,81 @@ class _IntlPhoneFieldState extends State<IntlPhoneField> {
 
   @override
   Widget build(BuildContext context) {
-    return TextFormField(
-      key: widget.formFieldKey,
-      initialValue: (widget.controller == null) ? number : null,
-      autofillHints: widget.disableAutoFillHints
-          ? null
-          : [AutofillHints.telephoneNumberNational],
-      readOnly: widget.readOnly,
-      obscureText: widget.obscureText,
-      textAlign: widget.textAlign,
-      textAlignVertical: widget.textAlignVertical,
-      cursorColor: widget.cursorColor,
-      onTap: widget.onTap,
-      controller: widget.controller,
-      focusNode: widget.focusNode,
-      cursorHeight: widget.cursorHeight,
-      cursorRadius: widget.cursorRadius,
-      cursorWidth: widget.cursorWidth,
-      showCursor: widget.showCursor,
-      onFieldSubmitted: widget.onSubmitted,
-      magnifierConfiguration: widget.magnifierConfiguration,
-      decoration: widget.decoration.copyWith(
-        prefixIcon: _buildFlagsButton(),
-        counterText: !widget.enabled ? '' : null,
-      ),
-      style: widget.style,
-      onSaved: (value) {
-        widget.onSaved?.call(
-          PhoneNumber(
-            countryISOCode: _selectedCountry.code,
-            countryCode:
-                '+${_selectedCountry.dialCode}${_selectedCountry.regionCode}',
-            number: value!,
-          ),
-        );
-      },
-      onChanged: (value) async {
-        final phoneNumber = PhoneNumber(
-          countryISOCode: _selectedCountry.code,
-          countryCode: '+${_selectedCountry.fullCountryCode}',
-          number: value,
-        );
-
-        if (widget.autovalidateMode != AutovalidateMode.disabled) {
-          validatorMessage = await widget.validator?.call(phoneNumber);
-        }
-
-        widget.onChanged?.call(phoneNumber);
-      },
-      validator: (value) {
-        if (value == null || !isNumeric(value)) return validatorMessage;
-        if (!widget.disableLengthCheck) {
-          return value.length >= _selectedCountry.minLength &&
-                  value.length <= _selectedCountry.maxLength
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        _buildFlagsButton(),
+        TextFormField(
+          key: widget.formFieldKey,
+          initialValue: (widget.controller == null) ? number : null,
+          autofillHints: widget.disableAutoFillHints
               ? null
-              : widget.invalidNumberMessage;
-        }
+              : [AutofillHints.telephoneNumberNational],
+          readOnly: widget.readOnly,
+          obscureText: widget.obscureText,
+          textAlign: widget.textAlign,
+          textAlignVertical: widget.textAlignVertical,
+          cursorColor: widget.cursorColor,
+          onTap: widget.onTap,
+          controller: widget.controller,
+          focusNode: widget.focusNode,
+          cursorHeight: widget.cursorHeight,
+          cursorRadius: widget.cursorRadius,
+          cursorWidth: widget.cursorWidth,
+          showCursor: widget.showCursor,
+          onFieldSubmitted: widget.onSubmitted,
+          magnifierConfiguration: widget.magnifierConfiguration,
+          decoration: widget.decoration.copyWith(
+            // prefixIcon: _buildFlagsButton(),
+            counterText: !widget.enabled ? '' : null,
+          ),
+          style: widget.style,
+          onSaved: (value) {
+            widget.onSaved?.call(
+              PhoneNumber(
+                countryISOCode: _selectedCountry.code,
+                countryCode:
+                    '+${_selectedCountry.dialCode}${_selectedCountry.regionCode}',
+                number: value!,
+              ),
+            );
+          },
+          onChanged: (value) async {
+            final phoneNumber = PhoneNumber(
+              countryISOCode: _selectedCountry.code,
+              countryCode: '+${_selectedCountry.fullCountryCode}',
+              number: value,
+            );
 
-        return validatorMessage;
-      },
-      maxLength: widget.disableLengthCheck ? null : _selectedCountry.maxLength,
-      keyboardType: widget.keyboardType,
-      inputFormatters: widget.inputFormatters,
-      enabled: widget.enabled,
-      keyboardAppearance: widget.keyboardAppearance,
-      autofocus: widget.autofocus,
-      textInputAction: widget.textInputAction,
-      autovalidateMode: widget.autovalidateMode,
+            if (widget.autovalidateMode != AutovalidateMode.disabled) {
+              validatorMessage = await widget.validator?.call(phoneNumber);
+            }
+
+            widget.onChanged?.call(phoneNumber);
+          },
+          validator: (value) {
+            if (value == null || !isNumeric(value)) return validatorMessage;
+            if (!widget.disableLengthCheck) {
+              return value.length >= _selectedCountry.minLength &&
+                      value.length <= _selectedCountry.maxLength
+                  ? null
+                  : widget.invalidNumberMessage;
+            }
+
+            return validatorMessage;
+          },
+          maxLength:
+              widget.disableLengthCheck ? null : _selectedCountry.maxLength,
+          keyboardType: widget.keyboardType,
+          inputFormatters: widget.inputFormatters,
+          enabled: widget.enabled,
+          keyboardAppearance: widget.keyboardAppearance,
+          autofocus: widget.autofocus,
+          textInputAction: widget.textInputAction,
+          autovalidateMode: widget.autovalidateMode,
+        ),
+      ],
     );
   }
 
