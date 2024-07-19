@@ -239,12 +239,13 @@ class IntlPhoneField extends StatefulWidget {
   /// The type of action button to use for the keyboard.
   final TextInputAction? textInputAction;
 
-  // TODO(muzakim): 24.07.19
-  final double bottomSheetBorderRadius;
-
   /// Optional set of styles to allow for customizing the country search
   /// & pick dialog
-  final PickerBottomSheetStyle? pickerDialogStyle;
+  final PickerBottomSheetStyle? pickerBottomSheetStyle;
+
+  // TODO(muzakim): 24.07.19
+  final double pickerBottomSheetBorderRadius;
+  final Color pickerBottomSheetBorderColor;
 
   /// The margin of the country selector button.
   ///
@@ -306,8 +307,9 @@ class IntlPhoneField extends StatefulWidget {
     this.cursorRadius = Radius.zero,
     this.cursorWidth = 2.0,
     this.showCursor = true,
-    this.bottomSheetBorderRadius = 40,
-    this.pickerDialogStyle,
+    this.pickerBottomSheetBorderRadius = 40,
+    this.pickerBottomSheetBorderColor = Colors.white24,
+    this.pickerBottomSheetStyle,
     this.flagsButtonMargin = EdgeInsets.zero,
     this.magnifierConfiguration,
   }) : super(key: key);
@@ -381,14 +383,16 @@ class _IntlPhoneFieldState extends State<IntlPhoneField> {
       context: context,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(widget.bottomSheetBorderRadius),
-          topRight: Radius.circular(widget.bottomSheetBorderRadius),
+          topLeft: Radius.circular(widget.pickerBottomSheetBorderRadius),
+          topRight: Radius.circular(widget.pickerBottomSheetBorderRadius),
         ),
       ),
       useRootNavigator: false,
       builder: (context) => CountryPickerBottomSheet(
+        borderRadius: widget.pickerBottomSheetBorderRadius,
+        borderColor: widget.pickerBottomSheetBorderColor,
         languageCode: widget.languageCode.toLowerCase(),
-        style: widget.pickerDialogStyle,
+        style: widget.pickerBottomSheetStyle,
         filteredCountries: filteredCountries,
         searchText: widget.searchText,
         countryList: _countryList,

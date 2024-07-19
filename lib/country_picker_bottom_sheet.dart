@@ -2,13 +2,8 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:intl_phone_field/countries.dart';
 import 'package:intl_phone_field/helpers.dart';
-import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 class PickerBottomSheetStyle {
-  final double borderRadius;
-
-  final Color? borderColor;
-
   final Color? backgroundColor;
 
   final String? title;
@@ -38,8 +33,6 @@ class PickerBottomSheetStyle {
   final double? width;
 
   PickerBottomSheetStyle({
-    this.borderRadius = 40,
-    this.borderColor = Colors.transparent,
     this.title,
     this.titleTextStyle,
     this.titlePadding,
@@ -58,6 +51,8 @@ class PickerBottomSheetStyle {
 }
 
 class CountryPickerBottomSheet extends StatefulWidget {
+  final double borderRadius;
+  final Color borderColor;
   final List<Country> countryList;
   final Country selectedCountry;
   final ValueChanged<Country> onCountryChanged;
@@ -68,6 +63,8 @@ class CountryPickerBottomSheet extends StatefulWidget {
 
   const CountryPickerBottomSheet({
     Key? key,
+    required this.borderRadius,
+    this.borderColor = Colors.white24,
     required this.searchText,
     required this.languageCode,
     required this.countryList,
@@ -101,33 +98,22 @@ class _CountryPickerBottomSheetState extends State<CountryPickerBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
-    const defaultBorderRadius = 40.0;
-
     return Container(
       padding: widget.style?.padding ?? const EdgeInsets.all(10),
       decoration: BoxDecoration(
         color: widget.style?.backgroundColor,
         borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(
-              widget.style?.borderRadius ?? defaultBorderRadius),
-          topRight: Radius.circular(
-              widget.style?.borderRadius ?? defaultBorderRadius),
+          topLeft: Radius.circular(widget.borderRadius),
+          topRight: Radius.circular(widget.borderRadius),
         ),
-        border: Border(
-            top: BorderSide(
-                color: widget.style?.borderColor ?? Colors.white24,
-                width: 1.5)),
+        border: Border(top: BorderSide(color: widget.borderColor, width: 1.5)),
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(
-              widget.style?.borderRadius ?? defaultBorderRadius),
-          topRight: Radius.circular(
-              widget.style?.borderRadius ?? defaultBorderRadius),
+          topLeft: Radius.circular(widget.borderRadius),
+          topRight: Radius.circular(widget.borderRadius),
         ),
-        child: CupertinoScaffold(
-          topRadius: Radius.circular(
-              widget.style?.borderRadius ?? defaultBorderRadius),
+        child: Scaffold(
           body: _buildContent(context),
         ),
       ),

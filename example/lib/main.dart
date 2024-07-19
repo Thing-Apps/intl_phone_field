@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl_phone_field/country_picker_bottom_sheet.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
 
 void main() {
@@ -68,6 +69,10 @@ class _MyAppState extends State<MyApp> {
                   onCountryChanged: (country) {
                     print('Country changed to: ' + country.name);
                   },
+                  pickerBottomSheetStyle: PickerBottomSheetStyle(
+                    title: 'Test',
+                    showSearchField: false,
+                  ),
                 ),
                 SizedBox(
                   height: 10,
