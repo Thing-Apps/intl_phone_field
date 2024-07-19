@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl_phone_field/country_picker_bottom_sheet.dart';
 import 'package:intl_phone_field/helpers.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 import './countries.dart';
 import './phone_number.dart';
@@ -375,7 +376,8 @@ class _IntlPhoneFieldState extends State<IntlPhoneField> {
 
   Future<void> _changeCountry() async {
     filteredCountries = _countryList;
-    await showModalBottomSheet(
+    await showCupertinoModalBottomSheet(
+      expand: true,
       context: context,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.only(
