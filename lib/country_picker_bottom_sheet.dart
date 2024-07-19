@@ -4,13 +4,17 @@ import 'package:intl_phone_field/countries.dart';
 import 'package:intl_phone_field/helpers.dart';
 
 class PickerBottomSheetStyle {
+  final double borderRadius;
+
+  final Color? borderColor;
+
+  final Color? backgroundColor;
+
   final String? title;
 
   final TextStyle? titleTextStyle;
 
   final EdgeInsets? titlePadding;
-
-  final Color? backgroundColor;
 
   final TextStyle? countryCodeStyle;
 
@@ -33,6 +37,8 @@ class PickerBottomSheetStyle {
   final double? width;
 
   PickerBottomSheetStyle({
+    this.borderRadius = 40,
+    this.borderColor = Colors.transparent,
     this.title,
     this.titleTextStyle,
     this.titlePadding,
@@ -97,79 +103,96 @@ class _CountryPickerBottomSheetState extends State<CountryPickerBottomSheet> {
     return Container(
       color: widget.style?.backgroundColor,
       padding: widget.style?.padding ?? const EdgeInsets.all(10),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: <Widget>[
-          if (widget.style?.title != null)
-            Padding(
-              padding: widget.style?.titlePadding ?? const EdgeInsets.all(0),
-              child: Text(widget.style?.title! ?? '',
-                  style: widget.style?.titleTextStyle),
-            ),
-          if (widget.style?.showSearchField ?? true)
-            Padding(
-              padding:
-                  widget.style?.searchFieldPadding ?? const EdgeInsets.all(0),
-              child: TextField(
-                cursorColor: widget.style?.searchFieldCursorColor,
-                decoration: widget.style?.searchFieldInputDecoration ??
-                    InputDecoration(
-                      suffixIcon: const Icon(Icons.search),
-                      labelText: widget.searchText,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(widget.style?.borderRadius ?? 40),
+          topRight: Radius.circular(widget.style?.borderRadius ?? 40),
+        ),
+        border: Border(
+            top: BorderSide(
+                color: widget.style?.borderColor ?? Colors.white24,
+                width: 1.5)),
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(widget.style?.borderRadius ?? 40),
+          topRight: Radius.circular(widget.style?.borderRadius ?? 40),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: <Widget>[
+            if (widget.style?.title != null)
+              Padding(
+                padding: widget.style?.titlePadding ?? const EdgeInsets.all(0),
+                child: Text(widget.style?.title! ?? '',
+                    style: widget.style?.titleTextStyle),
+              ),
+            if (widget.style?.showSearchField ?? true)
+              Padding(
+                padding:
+                    widget.style?.searchFieldPadding ?? const EdgeInsets.all(0),
+                child: TextField(
+                  cursorColor: widget.style?.searchFieldCursorColor,
+                  decoration: widget.style?.searchFieldInputDecoration ??
+                      InputDecoration(
+                        suffixIcon: const Icon(Icons.search),
+                        labelText: widget.searchText,
+                      ),
+                  onChanged: (value) {
+                    _filteredCountries = widget.countryList.stringSearch(value)
+                      ..sort(
+                        (a, b) => a
+                            .localizedName(widget.languageCode)
+                            .compareTo(b.localizedName(widget.languageCode)),
+                      );
+                    if (mounted) setState(() {});
+                  },
+                ),
+              ),
+            const SizedBox(height: 20),
+            Expanded(
+              child: ListView.builder(
+                shrinkWrap: true,
+                itemCount: _filteredCountries.length,
+                itemBuilder: (ctx, index) => Column(
+                  children: <Widget>[
+                    ListTile(
+                      leading: kIsWeb
+                          ? Image.asset(
+                              'assets/flags/${_filteredCountries[index].code.toLowerCase()}.png',
+                              package: 'intl_phone_field',
+                              width: 32,
+                            )
+                          : Text(
+                              _filteredCountries[index].flag,
+                              style: const TextStyle(fontSize: 18),
+                            ),
+                      contentPadding: widget.style?.listTilePadding,
+                      title: Text(
+                        _filteredCountries[index]
+                            .localizedName(widget.languageCode),
+                        style: widget.style?.countryNameStyle ??
+                            const TextStyle(fontWeight: FontWeight.w700),
+                      ),
+                      trailing: Text(
+                        '+${_filteredCountries[index].dialCode}',
+                        style: widget.style?.countryCodeStyle ??
+                            const TextStyle(fontWeight: FontWeight.w700),
+                      ),
+                      onTap: () {
+                        _selectedCountry = _filteredCountries[index];
+                        widget.onCountryChanged(_selectedCountry);
+                        Navigator.of(context).pop();
+                      },
                     ),
-                onChanged: (value) {
-                  _filteredCountries = widget.countryList.stringSearch(value)
-                    ..sort(
-                      (a, b) => a
-                          .localizedName(widget.languageCode)
-                          .compareTo(b.localizedName(widget.languageCode)),
-                    );
-                  if (mounted) setState(() {});
-                },
+                    widget.style?.listTileDivider ??
+                        const Divider(thickness: 1),
+                  ],
+                ),
               ),
             ),
-          const SizedBox(height: 20),
-          Expanded(
-            child: ListView.builder(
-              shrinkWrap: true,
-              itemCount: _filteredCountries.length,
-              itemBuilder: (ctx, index) => Column(
-                children: <Widget>[
-                  ListTile(
-                    leading: kIsWeb
-                        ? Image.asset(
-                            'assets/flags/${_filteredCountries[index].code.toLowerCase()}.png',
-                            package: 'intl_phone_field',
-                            width: 32,
-                          )
-                        : Text(
-                            _filteredCountries[index].flag,
-                            style: const TextStyle(fontSize: 18),
-                          ),
-                    contentPadding: widget.style?.listTilePadding,
-                    title: Text(
-                      _filteredCountries[index]
-                          .localizedName(widget.languageCode),
-                      style: widget.style?.countryNameStyle ??
-                          const TextStyle(fontWeight: FontWeight.w700),
-                    ),
-                    trailing: Text(
-                      '+${_filteredCountries[index].dialCode}',
-                      style: widget.style?.countryCodeStyle ??
-                          const TextStyle(fontWeight: FontWeight.w700),
-                    ),
-                    onTap: () {
-                      _selectedCountry = _filteredCountries[index];
-                      widget.onCountryChanged(_selectedCountry);
-                      Navigator.of(context).pop();
-                    },
-                  ),
-                  widget.style?.listTileDivider ?? const Divider(thickness: 1),
-                ],
-              ),
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
